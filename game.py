@@ -8,6 +8,25 @@ from pygame.locals import *
 
 # Here we set window size.
 SCREEN_SIZE = (800, 600)
+# Here we have constant, which stores pygame clock.
+CLOCK = pygame.time.Clock()
+
+
+# Here we have bullet's class
+class Bullet:
+    # Here is method coords of bullet and image of our bullet.
+    def __init__(self, surface, x_coord, y_coord):
+        self.surface = surface
+        self.x = x_coord + 24
+        self.y = y_coord
+        self.image = pygame.image.load('laser.png')
+        return
+
+    # Here is method which updates coords of this bullet.
+    def update(self, y_amount=5):
+        self.y -= y_amount
+        self.surface.blit(self.image, (self.x, self.y))
+        return
 
 
 # Here is our main class.
