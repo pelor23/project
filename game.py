@@ -62,8 +62,6 @@ class SpaceInvadersGame(object):
                         (event.type == KEYDOWN and event.key == K_ESCAPE)
                     ):
                     self.gamestate = 0
-
-                
         self.game_exit()
 
     # Here we add new method, which set our user.
@@ -80,26 +78,6 @@ class SpaceInvadersGame(object):
     def move(self, dirx, diry):
         self.player_x = self.player_x + (dirx * self.speed)
         self.player_y = self.player_y + (diry * self.speed)
-
-        ## Here we add code which is responsible for support player movements
-        ### This is the method from pygame library, which gave us soluttions about key handlers implemented already.
-        keys = pygame.key.get_pressed()
-
-        ### This part of code is responsible for player movements to the right (when he/she click right arrow).
-        if keys[K_RIGHT]:
-            self.move(1, 0)
-
-        ### This part of code is responsible for player movements to the left (when he/she click left arrow).
-        if keys[K_LEFT]:
-            self.move(-1, 0)
-
-        ### This line of code clears the screen and sets the background color to black.
-        self.surface.fill((0, 0, 0))
-        ### ## This line of code updates player position.
-        self.surface.blit(self.player, (self.player_x, self.player_y))
-
-        ### We send here a signal to update the displayed image.
-        pygame.display.flip()
 
 
 if __name__ == '__main__':
