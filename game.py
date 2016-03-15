@@ -71,36 +71,35 @@ class SpaceInvadersGame(object):
                 if (event.type == QUIT or
                         (event.type == KEYDOWN and event.key == K_ESCAPE)
                     ):
-                    self.gamestate = 0
-        self.game_exit()
-        keys = pygame.key.get_pressed()
+                    self.game_exit()
+            keys = pygame.key.get_pressed()
 
-        if keys[K_RIGHT] and self.player_x < SCREEN_SIZE[0] - 50:
-            self.move(1, 0)
+            if keys[K_RIGHT] and self.player_x < SCREEN_SIZE[0] - 50:
+                self.move(1, 0)
 
-        if keys[K_LEFT] and self.player_x > 0:
-            self.move(-1, 0)
+            if keys[K_LEFT] and self.player_x > 0:
+                self.move(-1, 0)
 
-        if keys[K_SPACE] and can_shoot:
-            bullet = Bullet(self.surface, self.player_x, self.player_y)
-            self.bullets_array.append(bullet)
-            can_shoot = False
+            if keys[K_SPACE] and can_shoot:
+                bullet = Bullet(self.surface, self.player_x, self.player_y)
+                self.bullets_array.append(bullet)
+                can_shoot = False
 
-        if not can_shoot and fire_wait <= 0:
-            can_shoot = True
-            fire_wait = 500
+            if not can_shoot and fire_wait <= 0:
+                can_shoot = True
+                fire_wait = 500
 
-        fire_wait -= CLOCK.tick(60)
+            fire_wait -= CLOCK.tick(60)
 
-        self.surface.fill((0, 0, 0))
-        self.surface.blit(self.player, (self.player_x, self.player_y))
+            self.surface.fill((0, 0, 0))
+            self.surface.blit(self.player, (self.player_x, self.player_y))
 
-        for bullet in self.bullets_array:
-            bullet.update()
-            if bullet.y < 0:
-                self.bullets_array.remove(bullet)
+            for bullet in self.bullets_array:
+                bullet.update()
+                if bullet.y < 0:
+                    self.bullets_array.remove(bullet)
 
-        pygame.display.flip()
+            pygame.display.flip()
 
 
     ## Here we add new method, which set our user.
