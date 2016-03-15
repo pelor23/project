@@ -24,7 +24,6 @@ class SpaceInvadersGame(object):
         ## This line of code clears the screen and sets the background color to black.
         self.surface.fill((0, 0, 0))
 
-
         ## Here we set the font.
         ## We call it with the value None (at this point pygame load the default font used in pygame)
         ## and set its size to 15.
@@ -47,10 +46,12 @@ class SpaceInvadersGame(object):
                 if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
                     exit()
 
+
     # Here is the method, which is responsible for the termination of the game and exit to the main system.
     def game_exit(self):
         """ This function interrupts the action of the game and exit to the system"""
         exit()
+
 
     # This is the main loop of the game, which supports the shutdown event and escape key.
     # Here also will be located service of our game and events
@@ -64,18 +65,26 @@ class SpaceInvadersGame(object):
                     self.gamestate = 0
         self.game_exit()
 
+        ## Here we add code which is responsible for support player movements
+        ### This is the method from pygame library, which gave us soluttions about key handlers implemented already.
         keys = pygame.key.get_pressed()
 
+        ### This part of code is responsible for player movements to the right (when he/she click right arrow).
         if keys[K_RIGHT]:
             self.move(1, 0)
 
+        ### This part of code is responsible for player movements to the left (when he/she click left arrow).
         if keys[K_LEFT]:
             self.move(-1, 0)
 
+        ### This line of code clears the screen and sets the background color to black.
         self.surface.fill((0, 0, 0))
+        ### ## This line of code updates player position.
         self.surface.blit(self.player, (self.player_x, self.player_y))
 
+        ### We send here a signal to update the displayed image.
         pygame.display.flip()
+
 
     # Here we add new method, which set our user.
     def draw_player(self):
@@ -86,6 +95,7 @@ class SpaceInvadersGame(object):
         ## Here we set his/her start position.
         self.player_x = SCREEN_SIZE[0]/2 - 25
         self.player_y = SCREEN_SIZE[1] - 75
+
 
     # Here we add method, which is responsible for updating player position.
     def move(self, dirx, diry):
