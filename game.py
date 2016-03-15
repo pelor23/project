@@ -14,7 +14,7 @@ CLOCK = pygame.time.Clock()
 
 # Here we have bullet's class
 class Bullet:
-    # Here is method coords of bullet and image of our bullet.
+    ## Here is method coords of bullet and image of our bullet.
     def __init__(self, surface, x_coord, y_coord):
         self.surface = surface
         self.x = x_coord + 24
@@ -22,7 +22,7 @@ class Bullet:
         self.image = pygame.image.load('laser.png')
         return
 
-    # Here is method which updates coords of this bullet.
+    ## Here is method which updates coords of this bullet.
     def update(self, y_amount=5):
         self.y -= y_amount
         self.surface.blit(self.image, (self.x, self.y))
@@ -31,32 +31,20 @@ class Bullet:
 
 # Here is our main class.
 class SpaceInvadersGame(object):
-    # Here is the method responsible for initializing and setting the pygame library and display windows.
+    ## Here is the method responsible for initializing and setting the pygame library and display windows.
     def __init__(self):
         pygame.init()
         flag = DOUBLEBUF
         self.surface = pygame.display.set_mode(SCREEN_SIZE, flag)
-        self.gamestate = 1
-        self.loop()
-
-        # Below we add welcome text and support the enter key.
-        ## This line of code clears the screen and sets the background color to black.
         self.surface.fill((0, 0, 0))
-
-        ## Here we set the font.
-        ## We call it with the value None (at this point pygame load the default font used in pygame)
-        ## and set its size to 15.
         gamefont = pygame.font.Font(None, 15)
-        ## Font rendering with the inscription.
-        ## We set two additional parameters - apart from the content, add information, that font is to be smoothed,
-        ## and what is its color.
+        self.bullets_array = []
+
+
         hello_label = gamefont.render("Press ENTER to start the game", 1, (255, 255, 0))
-        ## We add the label to display.
         self.surface.blit(hello_label, (100, 100))
-        ## We send here a signal to update the displayed image.
         pygame.display.flip()
-        ## Additionally, we set the loop to listen pressing the enter button
-        ## and start the game and the handle shutdown the window and escape key.
+
         while True:
             for event in pygame.event.get():
                 if event.type == KEYDOWN and event.key == K_RETURN:
@@ -66,16 +54,18 @@ class SpaceInvadersGame(object):
                     exit()
 
 
-    # Here is the method, which is responsible for the termination of the game and exit to the main system.
+    ## Here is the method, which is responsible for the termination of the game and exit to the main system.
     def game_exit(self):
         """ This function interrupts the action of the game and exit to the system"""
         exit()
 
 
-    # This is the main loop of the game, which supports the shutdown event and escape key.
-    # Here also will be located service of our game and events
+    ## This is the main loop of the game, which supports the shutdown event and escape key.
+    ## Here also will be located service of our game and events
     def loop(self):
         """ Main loop of the game """
+        can_shoot = True
+        fire_wait = 500
         while self.gamestate == 1:
             for event in pygame.event.get():
                 if (event.type == QUIT or
@@ -83,40 +73,45 @@ class SpaceInvadersGame(object):
                     ):
                     self.gamestate = 0
         self.game_exit()
-
-        ## Here we add code which is responsible for support player movements
-        ### This is the method from pygame library, which gave us soluttions about key handlers implemented already.
         keys = pygame.key.get_pressed()
 
-        ### This part of code is responsible for player movements to the right (when he/she click right arrow).
         if keys[K_RIGHT] and self.player_x < SCREEN_SIZE[0] - 50:
             self.move(1, 0)
 
-        ### This part of code is responsible for player movements to the left (when he/she click left arrow).
         if keys[K_LEFT] and self.player_x > 0:
             self.move(-1, 0)
 
-        ### This line of code clears the screen and sets the background color to black.
+        if keys[K_SPACE] and can_shoot:
+            bullet = Bullet(self.surface, self.player_x, self.player_y)
+            self.bullets_array.append(bullet)
+            can_shoot = False
+
+        if not can_shoot and fire_wait <= 0:
+            can_shoot = True
+            fire_wait = 500
+
+        fire_wait -= CLOCK.tick(60)
+
         self.surface.fill((0, 0, 0))
-        ### ## This line of code updates player position.
         self.surface.blit(self.player, (self.player_x, self.player_y))
 
-        ### We send here a signal to update the displayed image.
+        for bullet in self.bullets_array:
+            bullet.update()
+            if bullet.y < 0:
+                self.bullets_array.remove(bullet)
+
         pygame.display.flip()
 
 
-    # Here we add new method, which set our user.
+    ## Here we add new method, which set our user.
     def draw_player(self):
-        ## Here we load a image for player.
         self.player = pygame.image.load("space_ship.png")
-        ## Here we set his/her speed.
         self.speed = 1.2
-        ## Here we set his/her start position.
         self.player_x = SCREEN_SIZE[0]/2 - 25
         self.player_y = SCREEN_SIZE[1] - 75
 
 
-    # Here we add method, which is responsible for updating player position.
+    ## Here we add method, which is responsible for updating player position.
     def move(self, dirx, diry):
         self.player_x = self.player_x + (dirx * self.speed)
         self.player_y = self.player_y + (diry * self.speed)
