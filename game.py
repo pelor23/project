@@ -64,6 +64,19 @@ class SpaceInvadersGame(object):
                     self.gamestate = 0
         self.game_exit()
 
+        keys = pygame.key.get_pressed()
+
+        if keys[K_RIGHT]:
+            self.move(1, 0)
+
+        if keys[K_LEFT]:
+            self.move(-1, 0)
+
+        self.surface.fill((0, 0, 0))
+        self.surface.blit(self.player, (self.player_x, self.player_y))
+
+        pygame.display.flip()
+
     # Here we add new method, which set our user.
     def draw_player(self):
         ## Here we load a image for player.
