@@ -70,11 +70,11 @@ class SpaceInvadersGame(object):
         keys = pygame.key.get_pressed()
 
         ### This part of code is responsible for player movements to the right (when he/she click right arrow).
-        if keys[K_RIGHT]:
+        if keys[K_RIGHT] and self.player_x < SCREEN_SIZE[0] - 50:
             self.move(1, 0)
 
         ### This part of code is responsible for player movements to the left (when he/she click left arrow).
-        if keys[K_LEFT]:
+        if keys[K_LEFT] and self.player_x > 0:
             self.move(-1, 0)
 
         ### This line of code clears the screen and sets the background color to black.
