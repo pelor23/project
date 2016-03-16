@@ -19,9 +19,10 @@ YELLOW = (255, 255, 0)
 # Here we class which creates an instance of the enemy
 class Enemy:
     ## Here is method initializing coords of enemies.
-    def __init__(self, x_coord, y_coord):
+    def __init__(self, x_coord, y_coord, points):
         self.x = x_coord
         self.y = y_coord
+        self.points = points
         self.image = pygame.image.load('enemy.png')
         self.speed = 3
         return
@@ -37,7 +38,15 @@ class Enemy:
 def generate_enemies():
     matrix = []
     for y in range(5):
-        enemies = [Enemy(80 + (40 * x), 50 + (50 * y)) for x in range(11)]
+        if y == 0:
+            points = 30
+        elif y == 1 or y == 2:
+            points = 20
+        else:
+            points = 10
+
+
+        enemies = [Enemy(80 + (40 * x), 50 + (50 * y), points) for x in range(11)]
         matrix.append(enemies)
     return matrix
 
