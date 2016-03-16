@@ -1,5 +1,6 @@
 # Here we import method exit() from module called sys
 from sys import exit
+import random
 
 # Here we import two things: firstly the library called pygame;
 # Secondly from pygame.locals we import the entire contents.
@@ -14,9 +15,29 @@ CLOCK = pygame.time.Clock()
 SCORE = 0
 # Yellow color declaration
 YELLOW = (255, 255, 0)
+# Variable - life - declaration
+LIFE = 3
 
 
-# Here we class which creates an instance of the enemy
+# Here we have class which creates enemy's bullets
+class EnemyBullet:
+    ## Here is method initializing coords of bullet and image of our bullet.
+    def __init__(self, surface, x_coord, y_coord):
+        self.surface = surface
+        self.x = x_coord + 12
+        self.y = y_coord
+        self.image = pygame.image.load('laser.png')
+        return
+
+
+    ## Here is method which updates coords of this bullets.
+    def update(self, y_amount=5):
+        self.y += y_amount
+        self.surface.blit(self.image, (self.x, self.y))
+        return
+
+
+# Here we have class which creates an instance of the enemy
 class Enemy:
     ## Here is method initializing coords of enemies.
     def __init__(self, x_coord, y_coord, points):
@@ -75,7 +96,7 @@ class Bullet:
 # Here is our main class.
 class SpaceInvadersGame(object):
     ## Here is the method responsible for initializing and setting the pygame library and display windows.
-    def __init__(self, score=SCORE):
+    def __init__(self, score=SCORE, life=LIFE):
         pygame.init()
         flag = DOUBLEBUF
         self.surface = pygame.display.set_mode(SCREEN_SIZE, flag)
@@ -83,7 +104,9 @@ class SpaceInvadersGame(object):
         gamefont = pygame.font.Font(None, 15)
         self.bullets_array = []
         self.enemies_matrix = generate_enemies()
+        self.enemies_bullets = []
         self.score = score
+        self.life = life
 
 
         hello_label = gamefont.render("Press ENTER to start the game", 1, (255, 255, 0))
@@ -112,6 +135,8 @@ class SpaceInvadersGame(object):
         """ Main loop of the game """
         can_shoot = True
         fire_wait = 500
+        enemy_can_shoot = True
+        enemy_fire_wait = 1500
         moving = False
         gamefont = pygame.font.Font(None, 20)
 
@@ -155,6 +180,26 @@ class SpaceInvadersGame(object):
                         dirx = 1
                     enemy.update(self.surface, dirx)
 
+            if enemy_can_shoot:
+                flat_list = [enemy for enemies in self.enemies_matrix for enemy in enemies]
+                random_enemy = random.choice(flat_list)
+                enemy_bullet = EnemyBullet(self.surface, random_enemy.x, random_enemy.y)
+                self.enemies_bullets.append(enemy_bullet)
+                enemy_can_shoot = False
+
+            if not enemy_can_shoot and enemy_fire_wait <= 0:
+                enemy_fire_wait = 1500
+                enemy_can_shoot = True
+
+            for enemy_bullet in self.enemies_bullets:
+                enemy_bullet.update()
+                if enemy_bullet > 600:
+                    self.enemies_bullets.remove(enemy_bullet)
+
+                if (check_collision(enemy_bullet.x, enemy_bullet.y, self.player_x, self.player_y) and enemy_bullet in self.enemies_bullets):
+                    self.enemies_bullets.remove(enemy_bullet)
+                    self.life -= 1
+
             for bullet in self.bullets_array:
                 bullet.update()
                 if bullet.y < 0:
@@ -169,6 +214,9 @@ class SpaceInvadersGame(object):
 
             score_label = gamefont.render("Score: {}".format(self.score), 1, YELLOW)
             self.surface.blit(score_label, (25, 575))
+
+            life_label = gamefont.render("Life: {}".format(self.life), 1, YELLOW)
+            self.surface.blit(life_label, (750, 575))
 
             pygame.display.flip()
 
