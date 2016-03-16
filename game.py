@@ -10,6 +10,10 @@ from pygame.locals import *
 SCREEN_SIZE = (800, 600)
 # Here we have constant, which stores pygame clock.
 CLOCK = pygame.time.Clock()
+# Variable - score - declaration
+SCORE = 0
+# Yellow color declaration
+YELLOW = (255, 255, 0)
 
 
 # Here we class which creates an instance of the enemy
@@ -37,6 +41,11 @@ def generate_enemies():
         matrix.append(enemies)
     return matrix
 
+# Here is method which checks collision.
+def check_collision(object1_x, object1_y, object2_x, object2_y):
+    return ((object1_x > object2_x) and (object1_x < object2_x + 35) and
+            (object1_y > object2_y) and (object1_y < object2_y + 35))
+
 # Here we have class Bullet
 class Bullet:
     ## Here is method initializing coords of bullet and image of our bullet.
@@ -57,7 +66,7 @@ class Bullet:
 # Here is our main class.
 class SpaceInvadersGame(object):
     ## Here is the method responsible for initializing and setting the pygame library and display windows.
-    def __init__(self):
+    def __init__(self, score=SCORE):
         pygame.init()
         flag = DOUBLEBUF
         self.surface = pygame.display.set_mode(SCREEN_SIZE, flag)
@@ -65,6 +74,7 @@ class SpaceInvadersGame(object):
         gamefont = pygame.font.Font(None, 15)
         self.bullets_array = []
         self.enemies_matrix = generate_enemies()
+        self.score = score
 
 
         hello_label = gamefont.render("Press ENTER to start the game", 1, (255, 255, 0))
@@ -94,6 +104,8 @@ class SpaceInvadersGame(object):
         can_shoot = True
         fire_wait = 500
         moving = False
+        gamefont = pygame.font.Font(None, 20)
+
         while self.gamestate == 1:
             for event in pygame.event.get():
                 if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE)):
@@ -138,6 +150,16 @@ class SpaceInvadersGame(object):
                 bullet.update()
                 if bullet.y < 0:
                     self.bullets_array.remove(bullet)
+
+                for enemies in self.enemies_matrix:
+                    for enemy in enemies:
+                        if (check_collision(bullet.x, bullet.y, enemy.x, enemy.y) and bullet in self.bullets_array):
+                            self.score += enemy.points
+                            enemies.remove(enemy)
+                            self.bullets_array.remove(bullet)
+
+            score_label = gamefont.render("Score: {}".format(self.score), 1, YELLOW)
+            self.surface.blit(score_label, (25, 575))
 
             pygame.display.flip()
 
