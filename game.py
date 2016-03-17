@@ -19,6 +19,23 @@ YELLOW = (255, 255, 0)
 LIFE = 3
 
 
+# Here we have class Bullet
+class Bullet:
+    ## Here is method initializing coords of bullet and image of our bullet.
+    def __init__(self, surface, x_coord, y_coord):
+        self.surface = surface
+        self.x = x_coord + 24
+        self.y = y_coord
+        self.image = pygame.image.load('laser.png')
+        return
+
+    ## Here is method which updates coords of this bullet.
+    def update(self, y_amount=5):
+        self.y -= y_amount
+        self.surface.blit(self.image, (self.x, self.y))
+        return
+
+
 # Here we have class which creates enemy's bullets
 class EnemyBullet:
     ## Here is method initializing coords of bullet and image of our bullet.
@@ -55,6 +72,7 @@ class Enemy:
         surface.blit(self.image, (self.x, self.y))
         return
 
+
 # Here is add loop generating matrix opponents.
 def generate_enemies():
     matrix = []
@@ -71,26 +89,14 @@ def generate_enemies():
         matrix.append(enemies)
     return matrix
 
+
 # Here is method which checks collision.
 def check_collision(object1_x, object1_y, object2_x, object2_y):
-    return ((object1_x > object2_x) and (object1_x < object2_x + 35) and
-            (object1_y > object2_y) and (object1_y < object2_y + 35))
-
-# Here we have class Bullet
-class Bullet:
-    ## Here is method initializing coords of bullet and image of our bullet.
-    def __init__(self, surface, x_coord, y_coord):
-        self.surface = surface
-        self.x = x_coord + 24
-        self.y = y_coord
-        self.image = pygame.image.load('laser.png')
-        return
-
-    ## Here is method which updates coords of this bullet.
-    def update(self, y_amount=5):
-        self.y -= y_amount
-        self.surface.blit(self.image, (self.x, self.y))
-        return
+    if ((object1_x > object2_x) and (object1_x < object2_x + 35) and
+        (object1_y > object2_y) and (object1_y < object2_y + 35)
+    ):
+        return True
+    return False
 
 
 # Here is our main class.
@@ -123,10 +129,62 @@ class SpaceInvadersGame(object):
                     exit()
 
 
+    ## Method for game over screen
+    def game_over_scren(self):
+        gamefont = pygame.font.Font(None, 15)
+        label = gamefont.render("Press Y if you would like to restart game, N to exit the game", 1, YELLOW)
+        score = gamefont.render("You finished with score: {}".format(self.score), 1, YELLOW)
+        self.surface.fill((0, 0, 0))
+        self.surface.blit(label, (100, 100))
+        self.surface.blit(score, (100, 120))
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN and event.key == K_y:
+                    SpaceInvadersGame()
+                if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE) or
+                        (event.type == KEYDOWN and event.key == K_n)):
+                    exit()
+
+
+     # Method which reload the board
+    def continue_screen(self):
+        gamefont = pygame.font.Font(None, 15)
+        label = gamefont.render("Press ENTER if you would like to continue", 1, YELLOW)
+        score = gamefont.render("Your score: {}".format(self.score), 1, YELLOW)
+        self.surface.fill((0, 0, 0))
+        self.surface.blit(label, (100, 100))
+        self.surface.blit(score, (100, 120))
+        pygame.display.flip()
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == KEYDOWN and event.key == K_RETURN:
+                    SpaceInvadersGame(score=self.score, life=self.life)
+                if (event.type == QUIT or (event.type == KEYDOWN and event.key == K_ESCAPE) or
+                        (event.type == KEYDOWN and event.key == K_n)):
+                    exit()
+
+
     ## Here is the method, which is responsible for the termination of the game and exit to the main system.
     def game_exit(self):
         """ This function interrupts the action of the game and exit to the system"""
         exit()
+
+
+     ## Here we add new method, which set our user.
+    def draw_player(self):
+        self.player = pygame.image.load("space_ship.png")
+        self.speed = 1.2
+        self.player_x = SCREEN_SIZE[0]/2 - 25
+        self.player_y = SCREEN_SIZE[1] - 75
+
+
+    ## Here we add method, which is responsible for updating player position.
+    def move(self, dirx, diry):
+        self.player_x = self.player_x + (dirx * self.speed)
+        self.player_y = self.player_y + (diry * self.speed)
 
 
     ## This is the main loop of the game, which supports the shutdown event and escape key.
@@ -157,11 +215,15 @@ class SpaceInvadersGame(object):
                 self.bullets_array.append(bullet)
                 can_shoot = False
 
+            if not self.life:
+                self.gamestate = 0
+
             if not can_shoot and fire_wait <= 0:
                 can_shoot = True
                 fire_wait = 500
 
             fire_wait -= CLOCK.tick(60)
+            enemy_fire_wait -= CLOCK.tick(60)
 
             self.surface.fill((0, 0, 0))
             self.surface.blit(self.player, (self.player_x, self.player_y))
@@ -196,7 +258,9 @@ class SpaceInvadersGame(object):
                 if enemy_bullet > 600:
                     self.enemies_bullets.remove(enemy_bullet)
 
-                if (check_collision(enemy_bullet.x, enemy_bullet.y, self.player_x, self.player_y) and enemy_bullet in self.enemies_bullets):
+                if (check_collision(enemy_bullet.x, enemy_bullet.y, self.player_x, self.player_y) and
+                    enemy_bullet in self.enemies_bullets
+                ):
                     self.enemies_bullets.remove(enemy_bullet)
                     self.life -= 1
 
@@ -207,7 +271,9 @@ class SpaceInvadersGame(object):
 
                 for enemies in self.enemies_matrix:
                     for enemy in enemies:
-                        if (check_collision(bullet.x, bullet.y, enemy.x, enemy.y) and bullet in self.bullets_array):
+                        if (check_collision(bullet.x, bullet.y, enemy.x, enemy.y)
+                            and bullet in self.bullets_array
+                        ):
                             self.score += enemy.points
                             enemies.remove(enemy)
                             self.bullets_array.remove(bullet)
@@ -220,19 +286,10 @@ class SpaceInvadersGame(object):
 
             pygame.display.flip()
 
+            if not any(self.enemies_matrix):
+                self.continue_screen()
 
-    ## Here we add new method, which set our user.
-    def draw_player(self):
-        self.player = pygame.image.load("space_ship.png")
-        self.speed = 1.2
-        self.player_x = SCREEN_SIZE[0]/2 - 25
-        self.player_y = SCREEN_SIZE[1] - 75
-
-
-    ## Here we add method, which is responsible for updating player position.
-    def move(self, dirx, diry):
-        self.player_x = self.player_x + (dirx * self.speed)
-        self.player_y = self.player_y + (diry * self.speed)
+        self.game_over_scren()
 
 
 if __name__ == '__main__':
